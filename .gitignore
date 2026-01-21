@@ -97,3 +97,15 @@ Thumbs.db
 # Project specific
 *.csv
 OUTPUT/
+
+# MCM folders (ignore at root level)
+MCM_CCV_RIG_DutyCycle/
+MCM_CCV_RIG_FullRange/
+MCM_CCV_RIG_New/
+MCM_CCV_RIG_PowerCurve/
+MCM_CCV_RIG_Serial/
+MCM_CCV_RIG_TEST_ESP/
+
+# Un-ignore MCM folders in V3 and V4
+!V3/MCM_CCV_RIG_*/
+!V4/MCM_CCV_RIG_*/
