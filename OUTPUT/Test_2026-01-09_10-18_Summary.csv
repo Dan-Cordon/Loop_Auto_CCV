@@ -1,0 +1,4 @@
+Step_Num,TargetRPM,Duration_s,Grams_Dispensed,CCV_Value
+1,10.0,10.0,48.95,1225.7
+2,20.0,5.0,48.29,1242.5
+3,100.0,10.0,486.71,1232.8
