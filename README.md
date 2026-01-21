@@ -1,65 +1,110 @@
-# CCV Rig - Auto Control System
+# Loop Auto CCV
 
-A control and testing system for CCV (Continuously Variable Transmission) rigs. This project includes both Arduino firmware for the rig hardware and Python automation software for testing and analysis.
+Automated control and testing system for CCV (Continuously Variable Transmission) rigs. This project provides Python automation software for testing and analysis with Arduino firmware support.
 
 ## Project Structure
 
-- **MCM_CCV_RIG_*** - Arduino sketches for different testing modes:
-  - `DutyCycle` - Duty cycle testing
-  - `FullRange` - Full range testing
-  - `New` - New configuration
-  - `PowerCurve` - Power curve analysis
-  - `Serial` - Serial communication testing
-  - `TEST_ESP` - ESP microcontroller testing
+```
+├── V1/                    # Initial version
+├── V2/                    # Second iteration
+├── V3/                    # Third version
+├── V4/                    # Current production version (main branch focus)
+│   ├── auto_ccv_V4.py
+│   ├── auto_ccv_V4.spec
+│   ├── app_icon.ico
+│   └── build/            # PyInstaller build artifacts
+└── README.md
+```
 
-- **V1, V2, V3, V4** - Python application versions with progressively improved functionality
-  - Latest: **V4** - Current production version
-  - Each includes a PyInstaller build configuration for creating standalone executables
+### Version Details
 
-- **OUTPUT** - Test results and data output files (CSV format)
+Each version folder contains:
+- `auto_ccv_V*.py` - Main Python application
+- `auto_ccv_V*.spec` - PyInstaller specification file
+- `app_icon.ico` - Application icon
+- `build/` - Build artifacts directory
 
-## V4 - Latest Version
+## V4 - Current Production Version
 
-The main branch focuses on V4, the latest version of the auto control software.
+The **main** branch focuses on V4, the latest and recommended version of the auto CCV control software.
 
 ### Features
 - Automated CCV rig control and testing
 - Data logging and analysis
 - Serial communication with hardware
 - Configurable test parameters
+- GUI-based interface
 
 ### Requirements
 - Python 3.x
 - PySerial
-- NumPy/Pandas (for data analysis)
+- NumPy (for numerical analysis)
+- Pandas (for data manipulation)
+- tkinter (usually included with Python)
 
-### Building
-To create a standalone executable:
+### Installation
+
+Clone the repository:
 ```bash
+git clone https://github.com/Dan-Cordon/Loop_Auto_CCV.git
+cd Loop_Auto_CCV
+```
+
+Install dependencies:
+```bash
+pip install pyserial numpy pandas
+```
+
+### Running the Application
+
+Run directly with Python:
+```bash
+python V4/auto_ccv_V4.py
+```
+
+### Building Standalone Executable
+
+To create a standalone Windows executable:
+```bash
+cd V4
 python -m PyInstaller --noconsole --onefile --icon="app_icon.ico" auto_ccv_V4.py
 ```
 
-The executable will be generated in the `dist/` directory.
+The executable will be generated in the `V4/dist/` directory as `auto_ccv_V4.exe`.
 
-## Getting Started
+## Usage
 
-1. Ensure Python dependencies are installed
+1. Install Python dependencies
 2. Connect the CCV rig hardware via serial port
-3. Run the application or executable
-4. Configure test parameters
-5. Monitor output in the `OUTPUT/` directory
+3. Run the application
+4. Configure test parameters in the GUI
+5. Monitor test execution and data output
 
 ## Version History
 
-- **V4** - Current version (main branch)
-- **V3** - Previous version
-- **V2** - Earlier version
-- **V1** - Initial version
+| Version | Status | Notes |
+|---------|--------|-------|
+| **V4** | Current | Main branch - Latest production release |
+| V3 | Archive | Previous version |
+| V2 | Archive | Earlier version |
+| V1 | Archive | Initial version |
+
+## Arduino Firmware
+
+Arduino sketches for different testing modes are stored locally but not included in this repository. Refer to local MCM_CCV_RIG_* folders for firmware files.
+
+## Output
+
+Test results are stored in local `OUTPUT/` directory as CSV files (not tracked in repository).
+
+## Contributing
+
+Please ensure changes are made on appropriate branches before submitting pull requests.
 
 ## License
 
-[Add appropriate license information]
+[Add license information]
 
-## Contact
+## Contact & Support
 
-[Add contact information]
+For issues, questions, or contributions, please contact the project maintainer.
