@@ -28,9 +28,12 @@ Each version folder contains:
 - `app_icon.ico` - Application icon
 - `build/` - Build artifacts directory
 
-## V4 - Current Production Version
+## V3 Current Version (V4 - In Development)
 
-The **main** branch focuses on V4, the latest and recommended version of the auto CCV control software.
+The **main** branch focuses on V3, the latest and recommended version of the auto CCV control software.
+
+V4 is untested but implements power curve testing. 
+MCM_CCV_RIG_PowerCurve.ino is compatible with V3 and V4.
 
 ### Features
 - Automated CCV rig control and testing
