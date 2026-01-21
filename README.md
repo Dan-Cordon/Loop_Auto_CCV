@@ -7,8 +7,8 @@ Automated control and testing system for CCV (Cordon Calibration Value) rig. Thi
 ```
 ├── V1/                    # Initial version
 ├── V2/                    # Second iteration
-├── V3/                    # Third version
-├── V4/                    # Current production version (main branch focus)
+├── V3/                    # Third version (Linear Testing Only - Stable)
+├── V4/                    # In Development (Adds Power Curve Testing)
 │   ├── auto_ccv_V4.py
 │   ├── auto_ccv_V4.spec
 │   ├── app_icon.ico
@@ -84,8 +84,8 @@ The executable will be generated in the `V4/dist/` directory as `auto_ccv_V4.exe
 
 | Version | Status | Notes |
 |---------|--------|-------|
-| **V4** | Current | Main branch - Latest release - Linear & Power Curve Testing |
-| V3 | Current | Linear Testing Only |
+| **V4** | In Development | Linear & Power Curve Testing |
+| **V3** | Current | Stable Release - Linear Testing Only |
 | V2 | Archive |
 | V1 | Archive |
 
