@@ -12,9 +12,13 @@ Automated control and testing system for CCV (Cordon Calibration Value) rig. Thi
 │   ├── auto_ccv_V4.py
 │   ├── auto_ccv_V4.spec
 │   ├── app_icon.ico
+│   ├── dist/
+│   │   └── auto_ccv_V4.exe
 │   └── build/            # PyInstaller build artifacts
 └── README.md
 ```
+
+Prebuilt .exe for running program on Windows can be found within **dist** folder of each version.
 
 ### Version Details
 
