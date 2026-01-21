@@ -22,7 +22,7 @@ from matplotlib import style
 class DosingApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("Dosing Rig Control Panel v6.0 (Hybrid)")
+        self.root.title("Dosing Rig Control Panel")
         self.root.geometry("1280x980") 
 
         # Prevent Windows Sleep
