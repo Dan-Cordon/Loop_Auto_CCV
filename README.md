@@ -1,6 +1,6 @@
 # Loop Auto CCV
 
-Automated control and testing system for CCV (Continuously Variable Transmission) rigs. This project provides Python automation software for testing and analysis with Arduino firmware support.
+Automated control and testing system for CCV (Cordon Calibration Value) rig. This project provides Python automation software for testing and analysis with Arduino firmware support.
 
 ## Project Structure
 
@@ -75,7 +75,7 @@ The executable will be generated in the `V4/dist/` directory as `auto_ccv_V4.exe
 ## Usage
 
 1. Install Python dependencies
-2. Connect the CCV rig hardware via serial port
+2. Connect the CCV rig hardware via serial port (USB)
 3. Run the application
 4. Configure test parameters in the GUI
 5. Monitor test execution and data output
@@ -84,10 +84,10 @@ The executable will be generated in the `V4/dist/` directory as `auto_ccv_V4.exe
 
 | Version | Status | Notes |
 |---------|--------|-------|
-| **V4** | Current | Main branch - Latest production release |
-| V3 | Archive | Previous version |
-| V2 | Archive | Earlier version |
-| V1 | Archive | Initial version |
+| **V4** | Current | Main branch - Latest release - Linear & Power Curve Testing |
+| V3 | Current | Linear Testing Only |
+| V2 | Archive |
+| V1 | Archive |
 
 ## Arduino Firmware
 
