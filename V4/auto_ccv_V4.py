@@ -564,9 +564,36 @@ class DosingApp:
         for i in self.tree.get_children(): self.tree.delete(i)
 
     def _browse_file(self):
-        fname = f"Test_{datetime.datetime.now().strftime('%H-%M')}.csv"
+        fname = f"Test_{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M')}.csv"
         f = filedialog.asksaveasfilename(initialfile=fname, defaultextension=".csv")
-        if f: self.save_filepath.set(f)
+        if f:
+            # Check if file or its summary variant exists, and add iteration if needed
+            final_path = self._get_unique_filename(f)
+            self.save_filepath.set(final_path)
+
+    def _get_unique_filename(self, filepath):
+        """Check if file exists and add iteration number to avoid overwriting."""
+        if not os.path.exists(filepath):
+            return filepath
+        
+        # File exists, find a unique name
+        base, ext = os.path.splitext(filepath)
+        summary_path = f"{base}_Summary{ext}"
+        
+        iteration = 1
+        while True:
+            new_path = f"{base}_{iteration}{ext}"
+            new_summary_path = f"{base}_{iteration}_Summary{ext}"
+            
+            # Check both the main file and summary file don't exist
+            if not os.path.exists(new_path) and not os.path.exists(new_summary_path):
+                return new_path
+            
+            iteration += 1
+            if iteration > 1000:  # Safety check to prevent infinite loop
+                messagebox.showwarning("Warning", "Could not find unique filename after 1000 iterations.")
+                return filepath
+    
 
     def _emergency_stop(self):
         self.stop_test_flag = True
