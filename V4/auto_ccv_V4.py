@@ -172,6 +172,30 @@ class DosingApp:
         r2 = ttk.Radiobutton(mode_select_frame, text="Flow Calibration (New - Curve Fitting)", variable=self.operation_mode, value="CAL")
         r2.pack(side="left", padx=15)
 
+        # --- AUTO CURVE FIT BUILDER ---
+        curve_builder_frame = ttk.LabelFrame(builder_frame, text="Auto Curve Builder (7-Point Linear Fit)")
+        curve_builder_frame.pack(fill="x", padx=5, pady=5)
+        
+        curve_input_row = ttk.Frame(curve_builder_frame)
+        curve_input_row.pack(fill="x", padx=5, pady=5)
+        
+        ttk.Label(curve_input_row, text="Low RPM:").pack(side="left")
+        self.entry_curve_low_rpm = ttk.Entry(curve_input_row, width=8)
+        self.entry_curve_low_rpm.pack(side="left", padx=5)
+        self.entry_curve_low_rpm.insert(0, "20")
+        
+        ttk.Label(curve_input_row, text="High RPM:").pack(side="left")
+        self.entry_curve_high_rpm = ttk.Entry(curve_input_row, width=8)
+        self.entry_curve_high_rpm.pack(side="left", padx=5)
+        self.entry_curve_high_rpm.insert(0, "100")
+        
+        ttk.Label(curve_input_row, text="Duration per Step (s):").pack(side="left", padx=(20, 0))
+        self.entry_curve_duration = ttk.Entry(curve_input_row, width=8)
+        self.entry_curve_duration.pack(side="left", padx=5)
+        self.entry_curve_duration.insert(0, "10")
+        
+        ttk.Button(curve_input_row, text="Generate 7-Point Test", command=self._generate_curve_sequence).pack(side="left", padx=10)
+
         # Input Frame
         input_frame = ttk.Frame(builder_frame)
         input_frame.pack(fill="x", padx=5, pady=5)
@@ -345,7 +369,7 @@ class DosingApp:
             self.is_running_test = False
             self.root.after(0, lambda: self._set_ui_locked_for_test(False))
 
-    # --- MATH & CALIBRATION (New V4/V5 Feature) ---
+    # --- MATH & CALIBRATION (Linear Regression) ---
     def _perform_regression(self):
         valid_points = []
         for rpm, rate in self.last_calibration_results:
@@ -356,25 +380,35 @@ class DosingApp:
             messagebox.showwarning("Calibration Failed", "Not enough valid data points.")
             return
 
-        sum_ln_x = 0; sum_ln_y = 0; sum_ln_x_ln_y = 0; sum_sq_ln_x = 0; n = len(valid_points)
-
-        for rpm, rate in valid_points:
-            ln_x = math.log(rate)
-            ln_y = math.log(rpm)
-            sum_ln_x += ln_x; sum_ln_y += ln_y
-            sum_ln_x_ln_y += (ln_x * ln_y); sum_sq_ln_x += (ln_x * ln_x)
-
+        # Linear Regression: RPM = m * Rate + c
+        n = len(valid_points)
+        sum_x = sum(rate for rpm, rate in valid_points)
+        sum_y = sum(rpm for rpm, rate in valid_points)
+        sum_xy = sum(rate * rpm for rpm, rate in valid_points)
+        sum_x2 = sum(rate**2 for rpm, rate in valid_points)
+        
         try:
-            b_val = (n * sum_ln_x_ln_y - sum_ln_x * sum_ln_y) / (n * sum_sq_ln_x - sum_ln_x**2)
-            ln_a = (sum_ln_y - b_val * sum_ln_x) / n
-            a_val = math.exp(ln_a)
-        except:
-            messagebox.showerror("Error", "Math Error in Regression.")
+            denominator = (n * sum_x2 - sum_x**2)
+            if abs(denominator) < 1e-10:
+                messagebox.showerror("Error", "Cannot compute linear fit - insufficient variation in data.")
+                return
+            
+            m = (n * sum_xy - sum_x * sum_y) / denominator
+            c = (sum_y - m * sum_x) / n
+            
+            # Calculate R² for quality assessment
+            y_mean = sum_y / n
+            ss_tot = sum((rpm - y_mean)**2 for rpm, rate in valid_points)
+            ss_res = sum((rpm - (m * rate + c))**2 for rpm, rate in valid_points)
+            r_squared = 1 - (ss_res / ss_tot) if ss_tot > 0 else 0
+            
+        except Exception as e:
+            messagebox.showerror("Error", f"Math Error in Linear Regression: {str(e)}")
             return
 
-        msg = f"New Curve Calculated!\n\nRPM = {a_val:.2f} * Rate^{b_val:.2f}\n\nUpload to Rig?"
+        msg = f"Linear Calibration Calculated!\n\nRPM = {m:.4f} * Rate + {c:.4f}\nR² = {r_squared:.4f}\n\nUpload to Rig?"
         if messagebox.askyesno("Calibration", msg):
-            self._upload_calibration(a_val, b_val)
+            self._upload_calibration(m, c)
 
     def _upload_calibration(self, a, b):
         if self.ser and self.is_connected:
@@ -447,6 +481,55 @@ class DosingApp:
             self.sequence_data.append({"type": m, "val": v, "duration": d})
             self.tree.insert("", "end", values=(m, v, d))
         except: pass
+    
+    def _generate_curve_sequence(self):
+        """Generate 7-point linear fit test sequence from Low and High RPM."""
+        try:
+            low_rpm = float(self.entry_curve_low_rpm.get())
+            high_rpm = float(self.entry_curve_high_rpm.get())
+            duration = float(self.entry_curve_duration.get())
+            
+            if low_rpm <= 0 or high_rpm <= 0 or low_rpm >= high_rpm:
+                messagebox.showwarning("Invalid Input", "Ensure Low > 0, High > Low")
+                return
+            
+            if duration <= 0:
+                messagebox.showwarning("Invalid Duration", "Duration must be > 0")
+                return
+            
+            # Calculate 7 RPM points:
+            # 0: 0.8 * Low (80% of low)
+            # 1: Low
+            # 2: Low + (High-Low)/3
+            # 3: (Low+High)/2 (Midpoint)
+            # 4: Low + 2*(High-Low)/3
+            # 5: High
+            # 6: 1.2 * High (120% of high)
+            
+            rpm_range = high_rpm - low_rpm
+            points = [
+                0.8 * low_rpm,
+                low_rpm,
+                low_rpm + rpm_range / 3.0,
+                (low_rpm + high_rpm) / 2.0,
+                low_rpm + 2.0 * rpm_range / 3.0,
+                high_rpm,
+                1.2 * high_rpm
+            ]
+            
+            self._clear_sequence()
+            
+            for rpm in points:
+                self.sequence_data.append({"type": "RPM", "val": rpm, "duration": duration})
+                self.tree.insert("", "end", values=("RPM", f"{rpm:.1f}", duration))
+            
+            messagebox.showinfo("Success", f"Generated 7-point test:\n" +
+                              "\n".join([f"  {i+1}. {rpm:.1f} RPM" for i, rpm in enumerate(points)]))
+        
+        except ValueError:
+            messagebox.showerror("Error", "Invalid input - check Low RPM, High RPM, and Duration")
+        except Exception as e:
+            messagebox.showerror("Error", f"Error generating sequence: {str(e)}")
     
     def _save_routine(self):
         if not self.sequence_data: return
