@@ -233,6 +233,9 @@ class DosingApp:
         self.entry_save.pack(side="left", padx=5)
         ttk.Button(action_frame, text="Browse", command=self._browse_file).pack(side="left", padx=5)
 
+        ttk.Label(action_frame, text="Elapsed:").pack(side="left", padx=(20, 5))
+        ttk.Label(action_frame, textvariable=self.test_timer_text, font=("Arial", 12, "bold"), foreground="darkblue").pack(side="left")
+
         self.btn_run = ttk.Button(action_frame, text="RUN TEST SEQUENCE", command=self._start_test_thread, state="disabled")
         self.btn_run.pack(side="right", padx=10)
         
@@ -313,6 +316,11 @@ class DosingApp:
                 while time.time() < step_end:
                     if self.stop_test_flag: break
                     elapsed = time.time() - start_time
+                    
+                    # Update test timer display
+                    minutes = int(elapsed) // 60
+                    seconds = int(elapsed) % 60
+                    self.root.after(0, self.test_timer_text.set, f"{minutes:02d}:{seconds:02d}")
                     
                     # Calibration Data Collection (Skip start transient)
                     if (time.time() - (step_end - duration)) > 2.0:
